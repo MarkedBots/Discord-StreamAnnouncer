@@ -47,7 +47,26 @@ discord.on("ready", () => {
             console.info("Found a stream in the queue, announcing.");
             let stream: any = announcementQueue.shift();
 
-            announcementChannel.send(`${stream.username} is live! "${stream.title}" | https://stream.me/${stream.slug}`);
+            announcementChannel.send({ embed: {
+                color: 3447003,
+                footer: {
+                    text: "© Marked Bots, Halfpetal LLC"
+                },
+                author: {
+                    name: stream.username,
+                    url: `https://stream.me/${stream.slug}`,
+                    icon_url: stream._links.avatar.href
+                },
+                thumbnail: {
+                    url: stream._links.avatar.href
+                },
+                image: {
+                    url: stream._links.thumbnail.href
+                },
+                title: stream.title,
+                description: `${stream.username} is now live on StreamMe. You can view the stream on PC and mobile for iOS and Android.`,
+                url: `https://stream.me/${stream.slug}`
+            }});
         }
     }, 5000);
 });
