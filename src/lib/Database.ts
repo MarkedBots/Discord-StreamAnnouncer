@@ -19,7 +19,7 @@ export class Database {
                 "checkTime": 15000,
                 "users": []
             },
-            "history": []
+            "history": {}
         }).write();
 
         this.usersModel = new Users(this.db);
@@ -51,6 +51,7 @@ class Users {
 
             if (!this.db.get("config.users").value().includes(userId)) {
                 this.db.get("config.users").push(userId).write();
+                this.db.set(`history.${userId}`, []).write();
             }
 
             return true;
