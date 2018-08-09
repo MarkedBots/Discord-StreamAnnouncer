@@ -6,6 +6,7 @@ let discord = new Discord.Client();
 let database = new Database();
 let commandRoleId = database.database().get("config.discord.commandRoleId").value();
 let announcementChannelId = database.database().get("config.discord.announcmentChannelId").value();
+let announcementQueue: object[] = [];
 
 discord.on("ready", () => {
     console.log("Discord client ready.");
@@ -20,6 +21,11 @@ discord.on("ready", () => {
         }).then((response) => {
             response.forEach((user: any) => {
                 let streams = user.streams;
+
+                if (streams.active && !database.database().get(`history.${user.userPublicId}`).value().includes(streams.lastStarted)) {
+                    announcementQueue.push(streams);
+                    database.database().get(`history.${user.userPublicId}`).push(user.lastStarted).write();
+                }
             });
         }).catch((error) => {
             console.log(error);
