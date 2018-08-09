@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import { Database } from "./lib/Database";
+import * as request from "request-promise";
 
 let discord = new Discord.Client();
 let database = new Database();
@@ -9,6 +10,21 @@ let announcementChannelId = database.database().get("config.discord.announcmentC
 discord.on("ready", () => {
     console.log("Discord client ready.");
     console.log(`Allowing users with the role id ${commandRoleId} to add streamers`);
+
+    setInterval(() => {
+        let ids = database.users().all();
+        request({
+            method: "GET",
+            uri: "https://www.stream.me/api-channel/v1/channels?publicIds=" + ids.join(","),
+            json: true
+        }).then((response) => {
+            response.forEach((user: any) => {
+                let streams = user.streams;
+            });
+        }).catch((error) => {
+            console.log(error);
+        });
+    }, database.database().get("config.checkTime").value());
 });
 
 discord.on("error", (error) => {
