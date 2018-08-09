@@ -1,2 +1,2 @@
-# Discord-StreamAnnouncer
-A bot that checks all the streamers in it's list and announces when they detect they're live.
+## Discord StreamMe Stream Announcer
+Please check the [Wiki](https://github.com/MarkedBots/Discord-StreamAnnouncer/wiki) for all information.
