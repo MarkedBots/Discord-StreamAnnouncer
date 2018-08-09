@@ -7,12 +7,21 @@ let database = new Database();
 let commandRoleId = database.database().get("config.discord.commandRoleId").value();
 let announcementChannelId = database.database().get("config.discord.announcmentChannelId").value();
 let announcementQueue: object[] = [];
+let announcementChannel: any;
 
 discord.on("ready", () => {
     console.log("Discord client ready.");
     console.log(`Allowing users with the role id ${commandRoleId} to add streamers`);
+    announcementChannel = discord.channels.get(announcementChannelId);
+
+    announcementChannel.send("Hey there! I'm a StreamMe stream announcer. If you have the role, you can add a streamer by running !addstreamer username.")
+                       .then((msg: any) => {
+                           msg.delete(5000);
+                       });
 
     setInterval(() => {
+        console.log("Checking all the streams.");
+
         let ids = database.users().all();
         request({
             method: "GET",
@@ -20,10 +29,11 @@ discord.on("ready", () => {
             json: true
         }).then((response) => {
             response.forEach((user: any) => {
-                let streams = user.streams;
+                let stream = user.streams[0];
 
-                if (streams.active && !database.database().get(`history.${user.userPublicId}`).value().includes(streams.lastStarted)) {
-                    announcementQueue.push(streams);
+                if (stream.active && !database.database().get(`history.${user.userPublicId}`).value().includes(stream.lastStarted)) {
+                    console.info("Adding a stream to the queue.");
+                    announcementQueue.push(stream);
                     database.database().get(`history.${user.userPublicId}`).push(user.lastStarted).write();
                 }
             });
@@ -31,6 +41,15 @@ discord.on("ready", () => {
             console.log(error);
         });
     }, database.database().get("config.checkTime").value());
+
+    setInterval(() => {
+        if (announcementQueue.length > 0) {
+            console.info("Found a stream in the queue, announcing.");
+            let stream: any = announcementQueue.shift();
+
+            announcementChannel.send(`${stream.username} is live! "${stream.title}" | https://stream.me/${stream.slug}`);
+        }
+    }, 5000);
 });
 
 discord.on("error", (error) => {
