@@ -4,10 +4,12 @@
   "description": "A bot that checks all the streamers in it's list and announces when they detect they're live.",
   "private": true,
   "main": "./dist/StreamAnnouncer.js",
+  "bin": "./dist/StreamAnnouncer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "grunt": "grunt",
-    "compile": "tsc -p ."
+    "compile": "tsc -p .",
+    "package": "npm run grunt && npm run compile && pkg package.json --out-path dist/release"
   },
   "repository": {
     "type": "git",
