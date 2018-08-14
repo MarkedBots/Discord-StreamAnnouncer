@@ -75,7 +75,14 @@ class Users {
             if (this.db.get("config.users").value().includes(userId)) {
                 console.log(`Removing ${username} (${userId}) from the list.`);
 
-                this.db.get("config.users").remove(userId).write();
+                let arr: Array<string> = this.all();
+                let index: number = arr.indexOf(userId);
+
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+
+                this.db.set("config.users", arr).write();
                 this.db.unset(`history.${userId}`).write();
             }
 
