@@ -72,7 +72,9 @@ class Users {
         }).then(response => {
             let userId = response.userPublicId;
 
-            if (!this.db.get("config.users").value().includes(userId)) {
+            if (this.db.get("config.users").value().includes(userId)) {
+                console.log(`Removing ${username} (${userId}) from the list.`);
+
                 this.db.get("config.users").remove(userId).write();
                 this.db.unset(`history.${userId}`).write();
             }
