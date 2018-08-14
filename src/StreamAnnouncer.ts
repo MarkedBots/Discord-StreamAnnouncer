@@ -54,7 +54,7 @@ discord.on("ready", () => {
                 },
                 author: {
                     name: stream.username,
-                    url: `https://stream.me/${stream.slug}`,
+                    url: `https://stream.me/${stream.userSlug}`,
                     icon_url: stream._links.avatar.href
                 },
                 thumbnail: {
@@ -65,7 +65,7 @@ discord.on("ready", () => {
                 },
                 title: stream.title,
                 description: `${stream.username} is now live on StreamMe. You can view the stream on PC and mobile for iOS and Android.`,
-                url: `https://stream.me/${stream.slug}`
+                url: `https://stream.me/${stream.userSlug}`
             }});
         }
     }, 5000);

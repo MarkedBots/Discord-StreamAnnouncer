@@ -1,6 +1,6 @@
 {
   "name": "discord-streamannouncer",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta.2",
   "description": "A bot that checks all the streamers in it's list and announces when they detect they're live.",
   "private": true,
   "main": "./dist/StreamAnnouncer.js",
