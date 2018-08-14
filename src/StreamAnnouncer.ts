@@ -46,27 +46,42 @@ discord.on("ready", () => {
         if (announcementQueue.length > 0) {
             console.info("Found a stream in the queue, announcing.");
             let stream: any = announcementQueue.shift();
+            let announcementMessages: Array<string> = database.database().get("config.discord.messages").value();
+            let message: string = "";
 
-            announcementChannel.send({ embed: {
-                color: 3447003,
-                footer: {
-                    text: "© Marked Bots, Halfpetal LLC"
-                },
-                author: {
-                    name: stream.username,
-                    url: `https://stream.me/${stream.userSlug}`,
-                    icon_url: stream._links.avatar.href
-                },
-                thumbnail: {
-                    url: stream._links.avatar.href
-                },
-                image: {
-                    url: stream._links.thumbnail.href
-                },
-                title: stream.title,
-                description: `${stream.username} is now live on StreamMe. You can view the stream on PC and mobile for iOS and Android.`,
-                url: `https://stream.me/${stream.userSlug}`
-            }});
+            if (announcementMessages.length > 0) {
+                message = announcementMessages[Math.floor(Math.random() * announcementMessages.length)];
+                
+                message = message.replace("{username}", stream.username)
+                                 .replace("{slug}", stream.userSlug)
+                                 .replace("{link}", `https://stream.me/${stream.userSlug}`);
+            }
+
+            announcementChannel.send(message,
+                {
+                    disableEveryone: false,
+                    embed: {
+                        color: 3447003,
+                        footer: {
+                            text: "© Marked Bots, Halfpetal LLC"
+                        },
+                        author: {
+                            name: stream.username,
+                            url: `https://stream.me/${stream.userSlug}`,
+                            icon_url: stream._links.avatar.href
+                        },
+                        thumbnail: {
+                            url: stream._links.avatar.href
+                        },
+                        image: {
+                            url: stream._links.thumbnail.href
+                        },
+                        title: stream.title,
+                        description: `${stream.username} is now live on StreamMe. You can view the stream on PC and mobile for iOS and Android.`,
+                        url: `https://stream.me/${stream.userSlug}`
+                    }
+                }
+            );
         }
     }, 5000);
 });
@@ -110,7 +125,66 @@ discord.on("message", (message: any) => {
                            msg.delete(6000);
                        });
             }
-        }
+        } else if (message.content.indexOf("!removestreamer") > -1) {
+            let parameters = message.content.split(" ").slice(1);
+
+            parameters = parameters.filter((element: any) => {
+                return (element.length > 0 && element !== undefined && element !== null);
+            });
+
+
+            if (parameters.length < 1) {
+                message.delete();
+                message.reply(`${message.author.username}, you must include a StreamMe username.`)
+                       .then((msg: any) => {
+                           msg.delete(6000);
+                       });
+
+                return;
+            }
+
+            let username = parameters[0];
+
+            message.delete();
+
+            if (database.users().remove(username)) {
+                message.reply(`${message.author.username}, the streamer ${username} has been removed.`)
+                       .then((msg: any) => {
+                           msg.delete(6000);
+                       });
+            } else {
+                message.reply(`${message.author.username}, something went wrong. Is ${username} a valid streamer name?`)
+                       .then((msg: any) => {
+                           msg.delete(6000);
+                       });
+            }
+        }  else if (message.content.indexOf("!addmessage") > -1) {
+            let parameters = message.content.split(" ").slice(1);
+
+            parameters = parameters.filter((element: any) => {
+                return (element.length > 0 && element !== undefined && element !== null);
+            });
+
+
+            if (parameters.length < 1) {
+                message.reply(`${message.author.username}, you must include a message for me to add.`)
+                       .then((msg: any) => {
+                           msg.delete(6000);
+                       });
+
+                return;
+            }
+
+            let msg = message.content.replace("!addmessage ", "");
+
+            database.database().get("config.discord.messages").push(msg).write();
+            message.delete();
+            message.reply(`${message.author.username}, I've added the message to list.`)
+                       .then((msg: any) => {
+                           msg.delete(6000);
+                       });
+
+        } 
     }
 });
 

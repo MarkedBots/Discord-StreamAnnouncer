@@ -12,9 +12,10 @@ export class Database {
         this.db.defaults({
             "config": {
                 "discord": {
-                    "announcmentChannelId": "1",
-                    "commandRoleId": "1",
-                    "botToken": "tokenhere",
+                    "announcmentChannelId": "insertchannelidhere",
+                    "commandRoleId": "insertroleidhere",
+                    "botToken": "inserttokenhere",
+                    "messages": []
                 },
                 "checkTime": 15000,
                 "users": []
@@ -52,6 +53,28 @@ class Users {
             if (!this.db.get("config.users").value().includes(userId)) {
                 this.db.get("config.users").push(userId).write();
                 this.db.set(`history.${userId}`, []).write();
+            }
+
+            return true;
+        }).catch(error => {
+            console.log(error);
+            return false;
+        });
+
+        return true;
+    }
+
+    public remove(username: string): boolean {
+        request({
+            method: "GET",
+            uri: `https://www.stream.me/api-user/v1/${username}/channel`,
+            json: true
+        }).then(response => {
+            let userId = response.userPublicId;
+
+            if (!this.db.get("config.users").value().includes(userId)) {
+                this.db.get("config.users").remove(userId).write();
+                this.db.unset(`history.${userId}`).write();
             }
 
             return true;
